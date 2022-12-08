@@ -1,0 +1,15 @@
+version: "3"
+
+networks:
+  mdm:
+    external: true
+
+services:
+  app:
+    build: .
+    image: mdm-reports-backend
+    container_name: mdm-reports-backend
+    networks:
+      - mdm
+    volumes:
+      - .:/home/thiago/mdm/mdm-reports/backend

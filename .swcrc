@@ -1,0 +1,11 @@
+{
+  "jsc": {
+    "paths": {
+      "@core/*": ["./src/@core/*"]
+    },
+    "parser": {
+      "syntax": "typescript",
+      "decorators": true
+    }
+  }
+}

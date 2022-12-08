@@ -1,0 +1,48 @@
+{
+  "name": "mdm-reports-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "ts-node-dev -r tsconfig-paths/register --ignore-watch node_modules --transpile-only src/@@main",
+    "debug": "ts-node-dev -r tsconfig-paths/register --ignore-watch node_modules --inspect --transpile-only src/@@main",
+    "build": "babel src --extensions \".js,.ts\" --out-dir dist --copy-files --no-copy-ignored",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.19.3",
+    "@babel/core": "^7.20.2",
+    "@babel/node": "^7.20.2",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/plugin-proposal-decorators": "^7.20.2",
+    "@babel/preset-env": "^7.20.2",
+    "@babel/preset-typescript": "^7.18.6",
+    "@swc/core": "^1.3.19",
+    "@swc/jest": "^0.2.23",
+    "@types/express": "^4.17.14",
+    "@types/jest": "^29.2.3",
+    "@types/node": "^18.11.9",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "babel-plugin-module-resolver": "^4.1.0",
+    "babel-plugin-transform-typescript-metadata": "^0.3.2",
+    "eslint": "^8.0.1",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-standard-with-typescript": "^23.0.0",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-n": "^15.0.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-promise": "^6.0.0",
+    "jest": "^29.3.1",
+    "prettier": "^2.8.0",
+    "tsconfig-paths": "^4.1.0",
+    "typescript": "*"
+  },
+  "dependencies": {
+    "class-validator": "^0.13.2",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "reflect-metadata": "^0.1.13",
+    "ts-node-dev": "^2.0.0",
+    "tsyringe": "^4.7.0"
+  }
+}
