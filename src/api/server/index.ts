@@ -1,6 +1,7 @@
 import express, { Express } from 'express';
 
 import LogController from '@api/log/controller/LogController';
+import EntityController from '@api/@shared/controller/EntityController';
 
 class APIServer {
   private app: Express;
@@ -11,17 +12,23 @@ class APIServer {
     this.port = +process.env.HTTP_PORT;
 
     this.initializeMiddlewares();
-    this.initializeControllers();
+
+    const controllers = this.initializeControllers();
+    this.associate(controllers);
   }
 
   private initializeMiddlewares(): void {
     this.app.use(express.json());
   }
 
-  private initializeControllers(): void {
-    const logController = new LogController();
+  private initializeControllers(): EntityController[] {
+    return [new LogController()];
+  }
 
-    this.app.use(logController.path, logController.router);
+  private associate(controllers: EntityController[]): void {
+    controllers.forEach(controller => {
+      this.app.use(controller.getPath(), controller.router);
+    });
   }
 
   listen(): void {

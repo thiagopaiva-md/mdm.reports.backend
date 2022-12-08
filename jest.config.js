@@ -25,6 +25,7 @@ module.exports = {
     '<rootDir>/src/@core/*/domain/*/InMemory/*.ts',
     '<rootDir>/src/@core/*/application/use-cases/*.ts',
     '<rootDir>/src/@core/*/application/mappers/*.ts',
+    '<rootDir>/src/api/*/controller/*.ts',
   ],
 
   // The directory where Jest should output its coverage files

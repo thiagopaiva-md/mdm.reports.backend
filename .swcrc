@@ -1,7 +1,8 @@
 {
   "jsc": {
     "paths": {
-      "@core/*": ["./src/@core/*"]
+      "@core/*": ["./src/@core/*"],
+      "@api/*": ["./src/api/*"]
     },
     "parser": {
       "syntax": "typescript",

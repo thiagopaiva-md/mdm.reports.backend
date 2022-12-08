@@ -1,33 +1,26 @@
 import { container } from 'tsyringe';
 
-import { Request, Response, Router } from 'express';
+import { Request, Response } from 'express';
 
 import CreateLogUseCase from '@core/log/application/use-cases/CreateLogUseCase';
 import GetLogUseCase from '@core/log/application/use-cases/GetLogUseCase';
 import ListLogsUseCase from '@core/log/application/use-cases/ListLogsUseCase';
+import EntityController from '@api/@shared/controller/EntityController';
 
-class LogController {
-  private createLogUseCase: CreateLogUseCase;
+class LogController extends EntityController {
+  public createLogUseCase = container.resolve(CreateLogUseCase);
 
-  private getLogUseCase: GetLogUseCase;
+  public getLogUseCase = container.resolve(GetLogUseCase);
 
-  private listLogsUseCase: ListLogsUseCase;
+  public listLogsUseCase = container.resolve(ListLogsUseCase);
 
-  public path = '/log';
-
-  public router = Router();
-
-  constructor() {
-    this.createLogUseCase = container.resolve(CreateLogUseCase);
-    this.getLogUseCase = container.resolve(GetLogUseCase);
-    this.listLogsUseCase = container.resolve(ListLogsUseCase);
-
-    this.initializeRoutes();
-  }
-
-  private initializeRoutes(): void {
+  protected initializeRoutes(): void {
     this.router.get('/', this.findAll.bind(this));
     this.router.post('/', this.create.bind(this));
+  }
+
+  getPath(): string {
+    return '/log';
   }
 
   async create(request: Request, response: Response): Promise<Response> {
