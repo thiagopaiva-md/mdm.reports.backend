@@ -1,33 +1,55 @@
 import Entity, {
   EntityProperties,
 } from '@core/@seedwork/domain/entities/Entity';
+import FilterInput from '@core/@seedwork/domain/entities/FilterInput';
 import SearchableInput from '@core/@seedwork/domain/entities/SearchableInput';
 import SearchableOutput from '@core/@seedwork/domain/entities/SearchableOutput';
 import EntitySearchableRepositoryInMemory from '../EntitySearchableRepositoryInMemory';
 
 interface StubProperties extends EntityProperties {
   name: string;
+  age: number;
 }
 
 class StubEntity extends Entity<StubProperties> {
   name: string;
+  age: number;
 
   constructor(public readonly props: StubProperties) {
     super(props);
     this.name = this.props.name;
+    this.age = this.props.age;
   }
 }
 
 class StubEntitySearchableRepositoryInMemory extends EntitySearchableRepositoryInMemory<StubEntity> {
   sortableFields = ['name'];
 
-  protected async doFilter(
+  protected async filterItems(
     items: StubEntity[],
-    termToFilter?: string,
+    filter: FilterInput[],
   ): Promise<StubEntity[]> {
-    return items.filter(item => {
-      return item.name.toLowerCase().includes(termToFilter.toLowerCase());
+    let tempItems = items;
+    let value: any;
+
+    filter.forEach(f => {
+      tempItems = tempItems.filter(tempItem => {
+        switch (f.field) {
+          case 'name': {
+            value = tempItem.name.toLowerCase();
+            break;
+          }
+          case 'age': {
+            value = tempItem.age;
+            break;
+          }
+        }
+
+        return this.testItemFilter(value, f);
+      });
     });
+
+    return tempItems;
   }
 }
 
@@ -39,7 +61,9 @@ describe('EntitySearchableRepositoryInMemory unit tests.', () => {
   });
   describe('applyFilter method tests.', () => {
     it('Should not filter items when filter param is null.', async () => {
-      const items = [new StubEntity({ name: 'name', createdAt: new Date() })];
+      const items = [
+        new StubEntity({ name: 'name', age: 37, createdAt: new Date() }),
+      ];
       const spyFilterMethod = jest.spyOn(items, 'filter');
       const filteredItems = await repository['applyFilter'](items, null);
 
@@ -49,33 +73,101 @@ describe('EntitySearchableRepositoryInMemory unit tests.', () => {
 
     it('Should filter using a filter param.', async () => {
       const items = [
-        new StubEntity({ name: 'test1', createdAt: new Date() }),
-        new StubEntity({ name: 'test2', createdAt: new Date() }),
-        new StubEntity({ name: 'test3', createdAt: new Date() }),
+        new StubEntity({ name: 'test1', age: 37, createdAt: new Date() }),
+        new StubEntity({ name: 'test11', age: 15, createdAt: new Date() }),
+        new StubEntity({ name: 'test3', age: 55, createdAt: new Date() }),
       ];
+
+      let filter = new FilterInput({
+        field: 'name',
+        operator: 'in',
+        value: 'test1',
+      });
 
       const spyFilterMethod = jest.spyOn(items, 'filter');
 
-      let filteredItems = await repository['applyFilter'](items, 'test2');
-      expect(filteredItems).toStrictEqual([items[1]]);
+      let filteredItems = await repository['applyFilter'](items, [filter]);
+      expect(filteredItems).toStrictEqual([items[0], items[1]]);
       expect(spyFilterMethod).toHaveBeenCalledTimes(1);
 
-      filteredItems = await repository['applyFilter'](items, 'test3');
+      filter = new FilterInput({
+        field: 'name',
+        operator: '=',
+        value: 'test3',
+      });
+
+      filteredItems = await repository['applyFilter'](items, [filter]);
       expect(filteredItems).toStrictEqual([items[2]]);
       expect(spyFilterMethod).toHaveBeenCalledTimes(2);
 
-      filteredItems = await repository['applyFilter'](items, 'no-filter');
+      filter = new FilterInput({
+        field: 'name',
+        operator: '=',
+        value: 'no-filter',
+      });
+
+      filteredItems = await repository['applyFilter'](items, [filter]);
       expect(filteredItems).toHaveLength(0);
       expect(spyFilterMethod).toHaveBeenCalledTimes(3);
+
+      filter = new FilterInput({
+        field: 'name',
+        operator: '!=',
+        value: 'thiago',
+      });
+
+      filteredItems = await repository['applyFilter'](items, [filter]);
+      expect(filteredItems).toHaveLength(3);
+      expect(spyFilterMethod).toHaveBeenCalledTimes(4);
+
+      filter = new FilterInput({
+        field: 'age',
+        operator: '>',
+        value: 30,
+      });
+
+      filteredItems = await repository['applyFilter'](items, [filter]);
+      expect(filteredItems).toHaveLength(2);
+      expect(spyFilterMethod).toHaveBeenCalledTimes(5);
+
+      filter = new FilterInput({
+        field: 'age',
+        operator: '>=',
+        value: 55,
+      });
+
+      filteredItems = await repository['applyFilter'](items, [filter]);
+      expect(filteredItems).toHaveLength(1);
+      expect(spyFilterMethod).toHaveBeenCalledTimes(6);
+
+      filter = new FilterInput({
+        field: 'age',
+        operator: '<',
+        value: 30,
+      });
+
+      filteredItems = await repository['applyFilter'](items, [filter]);
+      expect(filteredItems).toHaveLength(1);
+      expect(spyFilterMethod).toHaveBeenCalledTimes(7);
+
+      filter = new FilterInput({
+        field: 'age',
+        operator: '<=',
+        value: 37,
+      });
+
+      filteredItems = await repository['applyFilter'](items, [filter]);
+      expect(filteredItems).toHaveLength(2);
+      expect(spyFilterMethod).toHaveBeenCalledTimes(8);
     });
   });
 
   describe('applySort method', () => {
     it('Should not sort items.', async () => {
       const items = [
-        new StubEntity({ name: 'test1', createdAt: new Date() }),
-        new StubEntity({ name: 'test2', createdAt: new Date() }),
-        new StubEntity({ name: 'test3', createdAt: new Date() }),
+        new StubEntity({ name: 'test1', age: 37, createdAt: new Date() }),
+        new StubEntity({ name: 'test2', age: 37, createdAt: new Date() }),
+        new StubEntity({ name: 'test3', age: 37, createdAt: new Date() }),
       ];
 
       let sortedItems = await repository['applySort'](items, null, null);
@@ -87,10 +179,10 @@ describe('EntitySearchableRepositoryInMemory unit tests.', () => {
 
     it('Should sort items.', async () => {
       const items = [
-        new StubEntity({ name: 'b', createdAt: new Date() }),
-        new StubEntity({ name: 'a', createdAt: new Date() }),
-        new StubEntity({ name: 'c', createdAt: new Date() }),
-        new StubEntity({ name: 'c', createdAt: new Date() }),
+        new StubEntity({ name: 'b', age: 37, createdAt: new Date() }),
+        new StubEntity({ name: 'a', age: 37, createdAt: new Date() }),
+        new StubEntity({ name: 'c', age: 37, createdAt: new Date() }),
+        new StubEntity({ name: 'c', age: 37, createdAt: new Date() }),
       ];
 
       let sortedItems = await repository['applySort'](items, 'name', 'asc');
@@ -114,11 +206,11 @@ describe('EntitySearchableRepositoryInMemory unit tests.', () => {
   describe('applyPagination method', () => {
     it('Should apply pagination.', async () => {
       const items = [
-        new StubEntity({ name: 'b', createdAt: new Date() }),
-        new StubEntity({ name: 'a', createdAt: new Date() }),
-        new StubEntity({ name: 'c', createdAt: new Date() }),
-        new StubEntity({ name: 'd', createdAt: new Date() }),
-        new StubEntity({ name: 'e', createdAt: new Date() }),
+        new StubEntity({ name: 'b', age: 37, createdAt: new Date() }),
+        new StubEntity({ name: 'a', age: 37, createdAt: new Date() }),
+        new StubEntity({ name: 'c', age: 37, createdAt: new Date() }),
+        new StubEntity({ name: 'd', age: 37, createdAt: new Date() }),
+        new StubEntity({ name: 'e', age: 37, createdAt: new Date() }),
       ];
 
       let paginatedItems = await repository['applyPagination'](items, 1, 2);
@@ -137,7 +229,11 @@ describe('EntitySearchableRepositoryInMemory unit tests.', () => {
 
   describe('search method', () => {
     it('Should only apply paginate when other params are null.', async () => {
-      const entity = new StubEntity({ name: 'a', createdAt: new Date() });
+      const entity = new StubEntity({
+        name: 'a',
+        age: 37,
+        createdAt: new Date(),
+      });
       const items = Array(21).fill(entity);
       repository.items = items;
 
@@ -149,9 +245,6 @@ describe('EntitySearchableRepositoryInMemory unit tests.', () => {
           totalItems: 21,
           currentPage: 1,
           itemsPerPage: 20,
-          sortField: null,
-          sortDirection: 'desc',
-          termToFilter: null,
         }),
       );
 
@@ -160,10 +253,10 @@ describe('EntitySearchableRepositoryInMemory unit tests.', () => {
 
     it('Should apply pagination and filter.', async () => {
       const items = [
-        new StubEntity({ name: 'test', createdAt: new Date() }),
-        new StubEntity({ name: 'a', createdAt: new Date() }),
-        new StubEntity({ name: 'TEST', createdAt: new Date() }),
-        new StubEntity({ name: 'TeSt', createdAt: new Date() }),
+        new StubEntity({ name: 'test', age: 37, createdAt: new Date() }),
+        new StubEntity({ name: 'a', age: 37, createdAt: new Date() }),
+        new StubEntity({ name: 'TEST', age: 37, createdAt: new Date() }),
+        new StubEntity({ name: 'TeSt', age: 37, createdAt: new Date() }),
       ];
       repository.items = items;
 
@@ -171,7 +264,9 @@ describe('EntitySearchableRepositoryInMemory unit tests.', () => {
         new SearchableInput({
           currentPage: 1,
           itemsPerPage: 2,
-          termToFilter: 'TEST',
+          filter: [
+            new FilterInput({ field: 'name', operator: '=', value: 'test' }),
+          ],
         }),
       );
 
@@ -181,20 +276,17 @@ describe('EntitySearchableRepositoryInMemory unit tests.', () => {
           totalItems: 3,
           currentPage: 1,
           itemsPerPage: 2,
-          sortField: null,
-          sortDirection: 'desc',
-          termToFilter: 'TEST',
         }),
       );
     });
 
     it('Should apply pagination and sort.', async () => {
       const items = [
-        new StubEntity({ name: 'b', createdAt: new Date() }),
-        new StubEntity({ name: 'a', createdAt: new Date() }),
-        new StubEntity({ name: 'd', createdAt: new Date() }),
-        new StubEntity({ name: 'e', createdAt: new Date() }),
-        new StubEntity({ name: 'c', createdAt: new Date() }),
+        new StubEntity({ name: 'b', age: 37, createdAt: new Date() }),
+        new StubEntity({ name: 'a', age: 37, createdAt: new Date() }),
+        new StubEntity({ name: 'd', age: 37, createdAt: new Date() }),
+        new StubEntity({ name: 'e', age: 37, createdAt: new Date() }),
+        new StubEntity({ name: 'c', age: 37, createdAt: new Date() }),
       ];
       repository.items = items;
 
@@ -212,9 +304,6 @@ describe('EntitySearchableRepositoryInMemory unit tests.', () => {
           totalItems: 5,
           currentPage: 1,
           itemsPerPage: 3,
-          sortField: 'name',
-          sortDirection: 'desc',
-          termToFilter: null,
         }),
       );
     });

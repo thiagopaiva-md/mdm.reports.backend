@@ -7,9 +7,6 @@ describe('SearchableOutput unit tests.', () => {
       totalItems: 4,
       currentPage: 1,
       itemsPerPage: 20,
-      sortDirection: 'asc',
-      sortField: 'name',
-      termToFilter: 'thiago',
     });
 
     expect(searchableOutput.props).toStrictEqual({
@@ -17,9 +14,6 @@ describe('SearchableOutput unit tests.', () => {
       totalItems: 4,
       currentPage: 1,
       itemsPerPage: 20,
-      sortDirection: 'asc',
-      sortField: 'name',
-      termToFilter: 'thiago',
     });
 
     expect(searchableOutput.items).toStrictEqual([]);
@@ -27,9 +21,6 @@ describe('SearchableOutput unit tests.', () => {
     expect(searchableOutput.currentPage).toBe(1);
     expect(searchableOutput.itemsPerPage).toBe(20);
     expect(searchableOutput.totalPages).toBe(1);
-    expect(searchableOutput.sortDirection).toBe('asc');
-    expect(searchableOutput.sortField).toBe('name');
-    expect(searchableOutput.termToFilter).toBe('thiago');
   });
 
   test('toJSON method.', () => {
@@ -38,9 +29,6 @@ describe('SearchableOutput unit tests.', () => {
       totalItems: 4,
       currentPage: 1,
       itemsPerPage: 20,
-      sortDirection: 'asc',
-      sortField: 'name',
-      termToFilter: 'thiago',
     });
 
     const json = searchableOutput.toJSON();
@@ -51,9 +39,6 @@ describe('SearchableOutput unit tests.', () => {
       currentPage: 1,
       itemsPerPage: 20,
       totalPages: 1,
-      sortDirection: 'asc',
-      sortField: 'name',
-      termToFilter: 'thiago',
     });
 
     expect(json.items).toStrictEqual([]);
@@ -61,8 +46,5 @@ describe('SearchableOutput unit tests.', () => {
     expect(json.currentPage).toBe(1);
     expect(json.itemsPerPage).toBe(20);
     expect(json.totalPages).toBe(1);
-    expect(json.sortDirection).toBe('asc');
-    expect(json.sortField).toBe('name');
-    expect(json.termToFilter).toBe('thiago');
   });
 });

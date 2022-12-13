@@ -1,14 +1,10 @@
 import Entity from './Entity';
-import { SortDirection } from './SearchableInput';
 
 type SearchableOutputProperties<E extends Entity> = {
   items: E[];
   totalItems: number;
   currentPage: number;
   itemsPerPage: number;
-  sortField?: string;
-  sortDirection: SortDirection;
-  termToFilter?: string;
 };
 
 class SearchableOutput<E extends Entity> {
@@ -20,9 +16,6 @@ class SearchableOutput<E extends Entity> {
     this.currentPage = this.props.currentPage;
     this.itemsPerPage = this.props.itemsPerPage;
     this._totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
-    this.sortField = this.props.sortField;
-    this.sortDirection = this.props.sortDirection;
-    this.termToFilter = this.props.termToFilter;
   }
 
   get items(): E[] {
@@ -61,30 +54,6 @@ class SearchableOutput<E extends Entity> {
     return this._totalPages;
   }
 
-  get sortField(): string {
-    return this.props.sortField;
-  }
-
-  private set sortField(value: string) {
-    this.props.sortField = value;
-  }
-
-  get sortDirection(): SortDirection {
-    return this.props.sortDirection;
-  }
-
-  private set sortDirection(value: SortDirection) {
-    this.props.sortDirection = value;
-  }
-
-  get termToFilter(): string {
-    return this.props.termToFilter;
-  }
-
-  private set termToFilter(value: string) {
-    this.props.termToFilter = value;
-  }
-
   toJSON() {
     return {
       items: this.items,
@@ -92,9 +61,6 @@ class SearchableOutput<E extends Entity> {
       currentPage: this.currentPage,
       itemsPerPage: this.itemsPerPage,
       totalPages: this.totalPages,
-      sortField: this.sortField,
-      sortDirection: this.sortDirection,
-      termToFilter: this.termToFilter,
     };
   }
 }

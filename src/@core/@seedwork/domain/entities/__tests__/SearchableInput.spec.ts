@@ -1,3 +1,4 @@
+import FilterInput from '../FilterInput';
 import SearchableInput from '../SearchableInput';
 
 describe('SearchableInput unit tests.', () => {
@@ -7,7 +8,7 @@ describe('SearchableInput unit tests.', () => {
       itemsPerPage: 10,
       sortField: 'name',
       sortDirection: 'asc',
-      termToFilter: 'thiago',
+      filter: [{ field: 'name', operator: '=', value: 'thiago' }],
     });
 
     expect(searchableInput.props).toStrictEqual({
@@ -15,14 +16,16 @@ describe('SearchableInput unit tests.', () => {
       itemsPerPage: 10,
       sortField: 'name',
       sortDirection: 'asc',
-      termToFilter: 'thiago',
+      filter: [{ field: 'name', operator: '=', value: 'thiago' }],
     });
 
     expect(searchableInput.currentPage).toBe(1);
     expect(searchableInput.itemsPerPage).toBe(10);
     expect(searchableInput.sortField).toBe('name');
     expect(searchableInput.sortDirection).toBe('asc');
-    expect(searchableInput.termToFilter).toBe('thiago');
+    expect(searchableInput.filter[0].field).toBe('name');
+    expect(searchableInput.filter[0].operator).toBe('=');
+    expect(searchableInput.filter[0].value).toBe('thiago');
   });
 
   it('Should normalize a SearchableInput with currentPage and itemsPerPage param.', () => {
@@ -34,15 +37,13 @@ describe('SearchableInput unit tests.', () => {
     expect(searchableInput.props).toStrictEqual({
       currentPage: 1,
       itemsPerPage: 20,
-      sortField: null,
       sortDirection: 'desc',
-      termToFilter: null,
+      sortField: null,
     });
 
     expect(searchableInput.currentPage).toBe(1);
     expect(searchableInput.itemsPerPage).toBe(20);
-    expect(searchableInput.sortField).toBeNull();
     expect(searchableInput.sortDirection).toBe('desc');
-    expect(searchableInput.termToFilter).toBeNull();
+    expect(searchableInput.sortField).toBeNull();
   });
 });

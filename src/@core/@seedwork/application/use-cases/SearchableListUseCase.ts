@@ -21,9 +21,6 @@ abstract class SearchableListUseCase<E extends Entity, ItemDTO>
       currentPage: searchResult.currentPage,
       itemsPerPage: searchResult.itemsPerPage,
       totalPages: searchResult.totalPages,
-      sortField: searchResult.sortField,
-      sortDirection: searchResult.sortDirection,
-      termToFilter: searchResult.termToFilter,
     };
   }
 

@@ -1,6 +1,7 @@
 import Entity, {
   EntityProperties,
 } from '@core/@seedwork/domain/entities/Entity';
+import FilterInput from '@core/@seedwork/domain/entities/FilterInput';
 import SearchableRepositoryInMemory from '@core/@seedwork/domain/repositories/InMemory/EntitySearchableRepositoryInMemory';
 import SearchableListUseCase from '../SearchableListUseCase';
 
@@ -19,15 +20,29 @@ class StubEntity extends Entity {
 }
 
 class StubSearchableRepositoryInMemory extends SearchableRepositoryInMemory<StubEntity> {
-  sortableFields: string[] = ['name'];
+  sortableFields = ['name'];
 
-  protected async doFilter(
+  protected async filterItems(
     items: StubEntity[],
-    termToFilter?: string,
+    filter: FilterInput[],
   ): Promise<StubEntity[]> {
-    return items.filter(item => {
-      return item.name.toLowerCase().includes(termToFilter.toLowerCase());
+    let tempItems = items;
+    let value: any;
+
+    filter.forEach(f => {
+      tempItems = tempItems.filter(tempItem => {
+        switch (f.field) {
+          case 'name': {
+            value = tempItem.name.toLowerCase();
+            break;
+          }
+        }
+
+        return this.testItemFilter(value, f);
+      });
     });
+
+    return tempItems;
   }
 }
 
@@ -90,9 +105,6 @@ describe('SearchableListUseCase unit tests.', () => {
       currentPage: 1,
       itemsPerPage: 20,
       totalPages: 1,
-      sortField: null,
-      sortDirection: 'desc',
-      termToFilter: null,
     });
   });
 });

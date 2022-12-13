@@ -1,3 +1,5 @@
+import FilterInput, { FilterInputProperties } from './FilterInput';
+
 type SortDirection = 'asc' | 'desc';
 
 type SearchableInputProperties = {
@@ -5,16 +7,18 @@ type SearchableInputProperties = {
   itemsPerPage?: number;
   sortField?: string;
   sortDirection?: SortDirection;
-  termToFilter?: string;
+  filter?: FilterInputProperties[];
 };
 
 class SearchableInput {
+  private _filter: FilterInput[];
+
   constructor(public readonly props: SearchableInputProperties) {
     this.currentPage = this.props.currentPage;
     this.itemsPerPage = this.props.itemsPerPage;
     this.sortField = this.props.sortField;
     this.sortDirection = this.props.sortDirection;
-    this.termToFilter = this.props.termToFilter;
+    this.filter = this.props.filter;
   }
 
   get currentPage(): number {
@@ -69,13 +73,21 @@ class SearchableInput {
       sortDir !== 'asc' && sortDir !== 'desc' ? 'desc' : sortDir;
   }
 
-  get termToFilter(): string {
-    return this.props.termToFilter;
+  get filter(): FilterInput[] {
+    return this._filter;
   }
 
-  private set termToFilter(value: string) {
-    this.props.termToFilter =
-      value === null || value === undefined || value === '' ? null : `${value}`;
+  private set filter(value: FilterInputProperties[]) {
+    if (value) {
+      this._filter = [];
+
+      value.forEach(v => {
+        const oneFilter = new FilterInput(v);
+        this._filter.push(oneFilter);
+      });
+    } else {
+      this._filter = null;
+    }
   }
 }
 

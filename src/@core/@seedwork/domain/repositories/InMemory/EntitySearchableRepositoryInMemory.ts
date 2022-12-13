@@ -1,4 +1,6 @@
+import { equal } from 'assert';
 import Entity from '../../entities/Entity';
+import FilterInput from '../../entities/FilterInput';
 import SearchableInput, { SortDirection } from '../../entities/SearchableInput';
 import SearchableOutput from '../../entities/SearchableOutput';
 import SearchableRepositoryInterface from '../contracts/SearchableRepositoryInterface';
@@ -13,7 +15,7 @@ abstract class EntitySearchableRepositoryInMemory<E extends Entity>
   async search(searchProps: SearchableInput): Promise<SearchableOutput<E>> {
     const filteredItems = await this.applyFilter(
       this.items,
-      searchProps.termToFilter,
+      searchProps.filter,
     );
 
     const sortedItems = await this.applySort(
@@ -33,21 +35,44 @@ abstract class EntitySearchableRepositoryInMemory<E extends Entity>
       totalItems: filteredItems.length,
       currentPage: searchProps.currentPage,
       itemsPerPage: searchProps.itemsPerPage,
-      sortField: searchProps.sortField,
-      sortDirection: searchProps.sortDirection,
-      termToFilter: searchProps.termToFilter,
     });
   }
 
-  protected async applyFilter(items: E[], termToFilter?: string): Promise<E[]> {
-    if (!termToFilter) {
+  protected async applyFilter(items: E[], filter: FilterInput[]): Promise<E[]> {
+    if (!filter) {
       return items;
     }
 
-    return this.doFilter(items, termToFilter);
+    return this.filterItems(items, filter);
   }
 
-  protected abstract doFilter(items: E[], termToFilter?: string): Promise<E[]>;
+  protected abstract filterItems(
+    items: E[],
+    filter: FilterInput[],
+  ): Promise<E[]>;
+
+  protected testItemFilter(
+    value: string | number | Date,
+    filter: FilterInput,
+  ): boolean {
+    switch (filter.operator) {
+      case '=':
+      default:
+        return value === filter.value;
+      case '!=':
+        return value !== filter.value;
+      case '>':
+        return value > filter.value;
+      case '>=':
+        return value >= filter.value;
+      case '<':
+        return value < filter.value;
+      case '<=':
+        return value <= filter.value;
+      case 'in':
+        return (value as string).includes(filter.value as string);
+    }
+  }
 
   protected async applySort(
     items: E[],
